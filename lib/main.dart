@@ -1,18 +1,9 @@
-import 'package:babyshaarkapp/Container.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:notification_banner/notification_alert.dart';
-import 'notification_banner.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:device_info/device_info.dart';
-import 'package:async/async.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(MaterialApp(
-  home: Home(),
-));
+      home: Home(),
+    ));
 
 class Home extends StatefulWidget {
   @override
@@ -20,9 +11,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  AndroidDeviceInfo androidInfo;
-
   Color colorForModel(String model) {
     if (model == "sdk_gphone_x86") {
       return Colors.amber;
@@ -35,14 +23,10 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.grey,
-    body: Center(
-      child: FutureBuilder<AndroidDeviceInfo>(
-        future: deviceInfo.androidInfo,
-        builder: (context, snapshot) => Visibility(
-          visible: snapshot.hasData,
-          child: InkWell(
-            onTap: () => print('Manufacturer: ${snapshot.data.device}, '),
+        backgroundColor: Colors.grey,
+        body: PhoneDependentContainer(
+          builder: (context, model, deviceInfo) => InkWell(
+            onTap: () => print('All Info: $deviceInfo, '),
             child: Container(
               child: SizedBox(
                 height: 160.0,
@@ -54,7 +38,7 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         color: colorForModel(
-                          snapshot.data.model,
+                          model,
                         ),
                       ),
                     ),
@@ -63,7 +47,7 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         color: colorForModel(
-                          snapshot.data.model,
+                          model,
                         ),
                       ),
                     ),
@@ -72,7 +56,7 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         color: colorForModel(
-                          snapshot.data.model,
+                          model,
                         ),
                       ),
                     ),
@@ -81,7 +65,7 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         color: colorForModel(
-                          snapshot.data.model,
+                          model,
                         ),
                       ),
                     ),
@@ -90,7 +74,7 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         color: colorForModel(
-                          snapshot.data.model,
+                          model,
                         ),
                       ),
                     ),
@@ -98,7 +82,7 @@ class _HomeState extends State<Home> {
                       width: 160.0,
                       color: Colors.grey,
                       child: Center(
-                        child: Text('model: ${snapshot.data.model}, '),
+                        child: Text('model: ${model}, '),
                       ),
                     ),
                   ],
@@ -107,7 +91,48 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-      ),
-    ),
-  );
+      );
+}
+
+class PhoneDependentContainer extends StatelessWidget {
+  final Widget Function(BuildContext, String, dynamic) builder;
+  final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+  PhoneDependentContainer({Key key, @required this.builder}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    switch (Theme.of(context).platform) {
+      case TargetPlatform.android:
+        return Center(
+          child: FutureBuilder<AndroidDeviceInfo>(
+            future: deviceInfo.androidInfo,
+            builder: (context, snapshot) => Visibility(
+              visible: snapshot.hasData,
+              child: builder(
+                context,
+                snapshot.data.model,
+                snapshot.data,
+              ),
+            ),
+          ),
+        );
+      case TargetPlatform.iOS:
+        return Center(
+          child: FutureBuilder<IosDeviceInfo>(
+            future: deviceInfo.iosInfo,
+            builder: (context, snapshot) => Visibility(
+              visible: snapshot.hasData,
+              child: builder(
+                context,
+                snapshot.data.model,
+                snapshot.data,
+              ),
+            ),
+          ),
+        );
+      default:
+        return Container();
+    }
+  }
 }
