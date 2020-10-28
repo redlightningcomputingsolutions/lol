@@ -25,7 +25,74 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: Colors.grey,
         body: PhoneDependentContainer(
-          builder: (context, model, deviceInfo, debugableInfo) => InkWell(
+          androidBuilder: (context, model, deviceInfo, debugableInfo) =>
+              InkWell(
+            onTap: () => print('All Info: $debugableInfo, '),
+            child: Container(
+              child: SizedBox(
+                height: 160.0,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    Container(
+                      width: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: colorForModel(
+                          model,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: colorForModel(
+                          model,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: colorForModel(
+                          model,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: colorForModel(
+                          model,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: colorForModel(
+                          model,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 160.0,
+                      color: Colors.grey,
+                      child: Center(
+                        child:
+                            Text('manufacturer: ${deviceInfo.manufacturer}, '),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          iOSBuilder: (context, model, deviceInfo, debugableInfo) => InkWell(
             onTap: () => print('All Info: $debugableInfo, '),
             child: Container(
               child: SizedBox(
@@ -95,10 +162,17 @@ class _HomeState extends State<Home> {
 }
 
 class PhoneDependentContainer extends StatelessWidget {
-  final Widget Function(BuildContext, String, dynamic, Map) builder;
+  final Widget Function(BuildContext, String, AndroidDeviceInfo, Map)
+  androidBuilder;
+  final Widget Function(BuildContext, String, IosDeviceInfo, Map) iOSBuilder;
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
-  PhoneDependentContainer({Key key, @required this.builder}) : super(key: key);
+  PhoneDependentContainer({
+    Key key,
+    @required this.iOSBuilder,
+    @required this.androidBuilder,
+  }) : super(key: key);
+
   Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
     return <String, dynamic>{
       'version.securityPatch': build.version.securityPatch,
@@ -159,14 +233,14 @@ class PhoneDependentContainer extends StatelessWidget {
                 ? Container()
                 : Visibility(
                     visible: snapshot.hasData,
-                    child: builder(
-                      context,
-                      snapshot.data.model,
-                      snapshot.data,
-                      _readAndroidBuildData(
-                        snapshot.data,
-                      ),
-                    ),
+              child: androidBuilder(
+                context,
+                snapshot.data.model,
+                snapshot.data,
+                _readAndroidBuildData(
+                  snapshot.data,
+                ),
+              ),
                   ),
           ),
         );
@@ -178,14 +252,14 @@ class PhoneDependentContainer extends StatelessWidget {
                 ? Container()
                 : Visibility(
                     visible: snapshot.hasData,
-                    child: builder(
-                      context,
-                      snapshot.data.model,
-                      snapshot.data,
-                      _readIosDeviceInfo(
-                        snapshot.data,
-                      ),
-                    ),
+              child: iOSBuilder(
+                context,
+                snapshot.data.model,
+                snapshot.data,
+                _readIosDeviceInfo(
+                  snapshot.data,
+                ),
+              ),
                   ),
           ),
         );
