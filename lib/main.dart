@@ -25,8 +25,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: Colors.grey,
         body: PhoneDependentContainer(
-          builder: (context, model, deviceInfo) => InkWell(
-            onTap: () => print('All Info: $deviceInfo, '),
+          builder: (context, model, deviceInfo, debugableInfo) => InkWell(
+            onTap: () => print('All Info: $debugableInfo, '),
             child: Container(
               child: SizedBox(
                 height: 160.0,
@@ -95,10 +95,58 @@ class _HomeState extends State<Home> {
 }
 
 class PhoneDependentContainer extends StatelessWidget {
-  final Widget Function(BuildContext, String, dynamic) builder;
+  final Widget Function(BuildContext, String, dynamic, Map) builder;
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   PhoneDependentContainer({Key key, @required this.builder}) : super(key: key);
+  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'version.securityPatch': build.version.securityPatch,
+      'version.sdkInt': build.version.sdkInt,
+      'version.release': build.version.release,
+      'version.previewSdkInt': build.version.previewSdkInt,
+      'version.incremental': build.version.incremental,
+      'version.codename': build.version.codename,
+      'version.baseOS': build.version.baseOS,
+      'board': build.board,
+      'bootloader': build.bootloader,
+      'brand': build.brand,
+      'device': build.device,
+      'display': build.display,
+      'fingerprint': build.fingerprint,
+      'hardware': build.hardware,
+      'host': build.host,
+      'id': build.id,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+      'supported32BitAbis': build.supported32BitAbis,
+      'supported64BitAbis': build.supported64BitAbis,
+      'supportedAbis': build.supportedAbis,
+      'tags': build.tags,
+      'type': build.type,
+      'isPhysicalDevice': build.isPhysicalDevice,
+      'androidId': build.androidId,
+      'systemFeatures': build.systemFeatures,
+    };
+  }
+
+  Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+    return <String, dynamic>{
+      'name': data.name,
+      'systemName': data.systemName,
+      'systemVersion': data.systemVersion,
+      'model': data.model,
+      'localizedModel': data.localizedModel,
+      'identifierForVendor': data.identifierForVendor,
+      'isPhysicalDevice': data.isPhysicalDevice,
+      'utsname.sysname:': data.utsname.sysname,
+      'utsname.nodename:': data.utsname.nodename,
+      'utsname.release:': data.utsname.release,
+      'utsname.version:': data.utsname.version,
+      'utsname.machine:': data.utsname.machine,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +163,9 @@ class PhoneDependentContainer extends StatelessWidget {
                       context,
                       snapshot.data.model,
                       snapshot.data,
+                      _readAndroidBuildData(
+                        snapshot.data,
+                      ),
                     ),
                   ),
           ),
@@ -131,6 +182,9 @@ class PhoneDependentContainer extends StatelessWidget {
                       context,
                       snapshot.data.model,
                       snapshot.data,
+                      _readIosDeviceInfo(
+                        snapshot.data,
+                      ),
                     ),
                   ),
           ),
