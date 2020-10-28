@@ -107,28 +107,32 @@ class PhoneDependentContainer extends StatelessWidget {
         return Center(
           child: FutureBuilder<AndroidDeviceInfo>(
             future: deviceInfo.androidInfo,
-            builder: (context, snapshot) => Visibility(
-              visible: snapshot.hasData,
-              child: builder(
-                context,
-                snapshot.data.model,
-                snapshot.data,
-              ),
-            ),
+            builder: (context, snapshot) => !snapshot.hasData
+                ? Container()
+                : Visibility(
+                    visible: snapshot.hasData,
+                    child: builder(
+                      context,
+                      snapshot.data.model,
+                      snapshot.data,
+                    ),
+                  ),
           ),
         );
       case TargetPlatform.iOS:
         return Center(
           child: FutureBuilder<IosDeviceInfo>(
             future: deviceInfo.iosInfo,
-            builder: (context, snapshot) => Visibility(
-              visible: snapshot.hasData,
-              child: builder(
-                context,
-                snapshot.data.model,
-                snapshot.data,
-              ),
-            ),
+            builder: (context, snapshot) => !snapshot.hasData
+                ? Container()
+                : Visibility(
+                    visible: snapshot.hasData,
+                    child: builder(
+                      context,
+                      snapshot.data.model,
+                      snapshot.data,
+                    ),
+                  ),
           ),
         );
       default:
